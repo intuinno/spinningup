@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 from spinup.exercises.pytorch.problem_set_1 import exercise1_1
 from spinup.exercises.pytorch.problem_set_1 import exercise1_2_auxiliary
+from torch import distributions
 
 """
 
@@ -33,12 +34,14 @@ def mlp(sizes, activation, output_activation=nn.Identity):
         (Use an nn.Sequential module.)
 
     """
-    #######################
-    #                     #
-    #   YOUR CODE HERE    #
-    #                     #
-    #######################
-    pass
+    layers = []
+    for i in range(len(sizes)-1):
+        layers.append(nn.Linear(sizes[i], sizes[i+1]))
+        if i == len(sizes) - 2:
+            layers.append(output_activation)
+        else:
+            layers.append(activation)
+    return nn.Sequential(*layers)
 
 class DiagonalGaussianDistribution:
 
@@ -52,12 +55,10 @@ class DiagonalGaussianDistribution:
             A PyTorch Tensor of samples from the diagonal Gaussian distribution with
             mean and log_std given by self.mu and self.log_std.
         """
-        #######################
-        #                     #
-        #   YOUR CODE HERE    #
-        #                     #
-        #######################
-        pass
+        dist = distributions.Normal(loc=self.mu, scale=self.log_std)
+        return dist.sample()
+
+        
 
     #================================(Given, ignore)==========================================#
     def log_prob(self, value):
@@ -85,9 +86,10 @@ class MLPGaussianActor(nn.Module):
         #   YOUR CODE HERE    #
         #                     #
         #######################
-        # self.log_std = 
-        # self.mu_net = 
-        pass 
+        ls = -0.5 * np.ones_like(act_dim) 
+        self.log_std = nn.Parameter(torch.from_numpy(ls))
+        sizes = [obs_dim] + hidden_sizes + [act_dim]
+        self.mu_net = mlp(sizes,activation)
 
     #================================(Given, ignore)==========================================#
     def forward(self, obs, act=None):

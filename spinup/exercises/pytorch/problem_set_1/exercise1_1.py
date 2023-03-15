@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from torch import distributions
 
 """
 
@@ -23,12 +24,9 @@ def gaussian_likelihood(x, mu, log_std):
     Returns:
         Tensor with shape [batch]
     """
-    #######################
-    #                     #
-    #   YOUR CODE HERE    #
-    #                     #
-    #######################
-    return torch.zeros(1)
+    dist = distributions.Normal(loc=mu, scale=log_std.exp())
+    log_prob = dist.log_prob(x)
+    return log_prob
 
 
 if __name__ == '__main__':
